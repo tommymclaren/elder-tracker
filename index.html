@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your New Home — Elder Contract Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F9F6F0;
+    --warm-white: #FDFBF8;
+    --charcoal: #2C2A26;
+    --muted: #7A7670;
+    --border: rgba(44,42,38,0.12);
+    --gold: #C8963E;
+    --gold-light: #F5E8D0;
+    --green: #3B6D11;
+    --green-light: #EAF3DE;
+    --red: #A32D2D;
+    --red-light: #FCEBEB;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --amber: #854F0B;
+    --amber-light: #FAEEDA;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--charcoal);
+    min-height: 100vh;
+  }
+
+  .hero {
+    background: var(--charcoal);
+    padding: 3rem 2rem 2.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    border: 40px solid rgba(200,150,62,0.12);
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 160px; height: 160px;
+    border-radius: 50%;
+    border: 30px solid rgba(200,150,62,0.08);
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 1.2rem;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 400;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 0.6rem;
+  }
+
+  .hero-address {
+    color: rgba(255,255,255,0.55);
+    font-size: 14px;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.8rem;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-stat {
+    text-align: center;
+  }
+
+  .hero-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    font-weight: 600;
+    display: block;
+  }
+
+  .hero-stat-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 400;
+    color: var(--charcoal);
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .icon-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* TIMELINE */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 3rem;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 8px; bottom: 8px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--gold), var(--border));
+  }
+
+  .milestone {
+    position: relative;
+    margin-bottom: 0;
+  }
+
+  .milestone-dot {
+    position: absolute;
+    left: -24px;
+    top: 10px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid white;
+    z-index: 2;
+  }
+
+  .milestone-dot.done { background: var(--green); }
+  .milestone-dot.active { background: var(--gold); box-shadow: 0 0 0 4px var(--gold-light); }
+  .milestone-dot.pending { background: white; border-color: var(--border); }
+  .milestone-dot.warn { background: var(--amber); }
+
+  .milestone-card {
+    background: var(--warm-white);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .milestone-card:hover { border-color: rgba(200,150,62,0.4); transform: translateX(3px); }
+  .milestone-card.done { opacity: 0.75; }
+  .milestone-card.active { border-color: var(--gold); background: var(--gold-light); }
+
+  .milestone-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .milestone-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--charcoal);
+  }
+
+  .milestone-date {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .milestone-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .badge-done { background: var(--green-light); color: var(--green); }
+  .badge-active { background: var(--gold-light); color: var(--amber); }
+  .badge-pending { background: #F1EFE8; color: var(--muted); }
+  .badge-warn { background: var(--amber-light); color: var(--amber); }
+  .badge-alert { background: var(--red-light); color: var(--red); }
+
+  /* REPAIR STATUS */
+  .repair-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 3rem;
+  }
+
+  .repair-card {
+    background: var(--warm-white);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  .repair-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .repair-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .repair-status { font-size: 11px; color: var(--muted); }
+
+  /* CONTACTS */
+  .contacts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 3rem;
+  }
+
+  .contact-card {
+    background: var(--warm-white);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: border-color 0.2s;
+  }
+
+  .contact-card:hover { border-color: rgba(200,150,62,0.4); }
+
+  .contact-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .contact-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .contact-role { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .contact-phone { font-size: 12px; color: var(--blue); }
+
+  /* MAP / NEARBY */
+  .map-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .map-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 0.5px solid var(--border);
+    font-size: 12px;
+    cursor: pointer;
+    background: white;
+    color: var(--muted);
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .map-tab:hover { border-color: var(--gold); color: var(--gold); }
+  .map-tab.active { background: var(--charcoal); color: white; border-color: var(--charcoal); }
+
+  .places-list {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .place-card {
+    background: var(--warm-white);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+    cursor: pointer;
+  }
+
+  .place-card:hover { border-color: rgba(200,150,62,0.4); }
+
+  .place-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .place-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .place-addr { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .place-meta { display: flex; align-items: center; gap: 8px; }
+  .stars { font-size: 11px; color: var(--gold); }
+  .rating-count { font-size: 11px; color: var(--muted); }
+  .place-hours { font-size: 11px; color: var(--muted); }
+
+  .map-embed {
+    width: 100%;
+    height: 320px;
+    border-radius: 12px;
+    border: 0.5px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 3rem;
+    background: #e8e4dc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .map-placeholder {
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .map-placeholder svg { margin-bottom: 8px; }
+
+  .map-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    background: var(--charcoal);
+    color: white;
+    padding: 9px 18px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+    letter-spacing: 0.03em;
+    transition: background 0.15s;
+  }
+
+  .map-cta:hover { background: #1a1814; }
+
+  /* PROGRESS BAR */
+  .progress-section {
+    background: var(--warm-white);
+    border: 0.5px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .progress-label { font-size: 13px; font-weight: 500; }
+  .progress-pct {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(to right, var(--gold), #E8A84A);
+    transition: width 1s ease;
+  }
+
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-step {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    flex: 1;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    background: var(--warm-white);
+  }
+
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--charcoal);
+    margin-bottom: 4px;
+  }
+
+  .footer-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .hidden { display: none; }
+
+  @media (max-width: 600px) {
+    .hero-stats { gap: 1.2rem; }
+    .hero-stat-val { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Your Home Purchase</div>
+  <h1>6854 W Sentinel Post Path</h1>
+  <p class="hero-address">Beverly Hills, FL 34465 &nbsp;·&nbsp; Pineridge Farms</p>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <span class="hero-stat-val">$919,600</span>
+      <span class="hero-stat-label">Purchase Price</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-val">Jun 16</span>
+      <span class="hero-stat-label">Closing Date</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-val">10 ac</span>
+      <span class="hero-stat-label">Property Size</span>
+    </div>
+    <div class="hero-stat">
+      <span class="hero-stat-val">VA</span>
+      <span class="hero-stat-label">Loan Type</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- PROGRESS -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <span class="progress-label">Overall transaction progress</span>
+      <span class="progress-pct">62%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" style="width: 62%;"></div>
+    </div>
+    <div class="progress-steps">
+      <span class="progress-step">Contract</span>
+      <span class="progress-step">Inspect</span>
+      <span class="progress-step">Repairs</span>
+      <span class="progress-step">Appraisal</span>
+      <span class="progress-step">Loan</span>
+      <span class="progress-step">Close</span>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="section-title"><span class="icon-dot"></span> Key dates</div>
+
+  <div class="timeline">
+
+    <div class="milestone">
+      <div class="milestone-dot done"></div>
+      <div class="milestone-card done">
+        <div class="milestone-header">
+          <span class="milestone-name">Contract signed</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">Apr 8, 2026</span>
+            <span class="badge badge-done">Done</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Purchase agreement fully executed. Seller: Warren G. Davidson. Both buyers signed via Dotloop.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot done"></div>
+      <div class="milestone-card done">
+        <div class="milestone-header">
+          <span class="milestone-name">Inspections completed</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">Apr 13, 2026</span>
+            <span class="badge badge-done">Done</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Home, septic, WDO, pool, well, 4-point & wind mitigation all completed. Septic passed. Water test passed VA requirements.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot done"></div>
+      <div class="milestone-card done">
+        <div class="milestone-header">
+          <span class="milestone-name">Repair addendum executed</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">Apr 16, 2026</span>
+            <span class="badge badge-done">Done</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Seller agreed to fix reversed polarity, GFCI, hose bib, and replace both water heaters (main home + workshop). Fully executed by all parties.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot active"></div>
+      <div class="milestone-card active">
+        <div class="milestone-header">
+          <span class="milestone-name">Seller repairs underway</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">Est. ~May 1–9</span>
+            <span class="badge badge-active">In progress</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Electrical fixes done. Water heaters pending — 55-gallon units were out of stock. Your agent is tracking the completion date closely so the appraisal can be ordered right away.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot pending"></div>
+      <div class="milestone-card">
+        <div class="milestone-header">
+          <span class="milestone-name">VA appraisal ordered</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">After repairs done</span>
+            <span class="badge badge-pending">Upcoming</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Lender (Mike Mastriano at AFN) will order the appraisal once repairs are confirmed complete with contractor receipts.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot warn"></div>
+      <div class="milestone-card">
+        <div class="milestone-header">
+          <span class="milestone-name">Loan approval deadline</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">May 23, 2026</span>
+            <span class="badge badge-warn">Watch</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Lender must have full approval by this date. Timing depends on water heater completion — your agent is coordinating with Mike to stay on track.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot pending"></div>
+      <div class="milestone-card">
+        <div class="milestone-header">
+          <span class="milestone-name">Oregon property must close</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">Jun 15, 2026</span>
+            <span class="badge badge-pending">Upcoming</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Your Klamath Falls property (appraised $660K) needs to close by this date per your sale contingency. Solar assumption in progress.</p>
+      </div>
+    </div>
+
+    <div class="milestone">
+      <div class="milestone-dot pending"></div>
+      <div class="milestone-card" style="border-color:rgba(59,109,17,0.3); background:#F4FAF0;">
+        <div class="milestone-header">
+          <span class="milestone-name" style="color:var(--green);">Closing day!</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="milestone-date">Jun 16, 2026</span>
+            <span class="badge badge-done">Target</span>
+          </div>
+        </div>
+        <p class="milestone-detail">Closing at Title USA with Jeri Diehl. 478 NE 3rd St, Suite C, Crystal River, FL 34429.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- REPAIRS -->
+  <div class="section-title"><span class="icon-dot"></span> Repair status</div>
+  <div class="repair-grid">
+    <div class="repair-card">
+      <div class="repair-icon" style="background:var(--green-light);">⚡</div>
+      <div class="repair-title">Reversed polarity (back porch)</div>
+      <div class="repair-status" style="color:var(--green);font-weight:500;">✓ Complete</div>
+    </div>
+    <div class="repair-card">
+      <div class="repair-icon" style="background:var(--green-light);">🔌</div>
+      <div class="repair-title">GFCI outlet (kitchen)</div>
+      <div class="repair-status" style="color:var(--green);font-weight:500;">✓ Complete</div>
+    </div>
+    <div class="repair-card">
+      <div class="repair-icon" style="background:var(--green-light);">💧</div>
+      <div class="repair-title">Exterior hose bib leak</div>
+      <div class="repair-status" style="color:var(--green);font-weight:500;">✓ Complete</div>
+    </div>
+    <div class="repair-card">
+      <div class="repair-icon" style="background:var(--amber-light);">🌡️</div>
+      <div class="repair-title">Water heater — main home</div>
+      <div class="repair-status" style="color:var(--amber);font-weight:500;">⏳ Awaiting stock</div>
+    </div>
+
+  </div>
+
+  <!-- CONTACTS -->
+  <div class="section-title"><span class="icon-dot"></span> Your team</div>
+  <div class="contacts-grid">
+    <div class="contact-card">
+      <div class="contact-avatar" style="background:var(--blue-light);color:var(--blue);">TM</div>
+      <div class="contact-name">Thomas McLaren</div>
+      <div class="contact-role">Your Buyer's Agent — Florida's A Team Realty</div>
+      <div class="contact-phone">📞 352-467-5011</div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar" style="background:#F5E8D0;color:var(--amber);">MM</div>
+      <div class="contact-name">Mike Mastriano</div>
+      <div class="contact-role">Lender — American Financial Network</div>
+      <div class="contact-phone">📞 315-278-8335</div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-avatar" style="background:var(--green-light);color:var(--green);">JD</div>
+      <div class="contact-name">Jeri Diehl</div>
+      <div class="contact-role">Title Agent — Title USA</div>
+      <div class="contact-phone">📞 352-794-6087</div>
+    </div>
+
+  </div>
+
+  <!-- NEARBY -->
+  <div class="section-title"><span class="icon-dot"></span> Your new neighborhood</div>
+
+  <div class="map-tabs">
+    <button class="map-tab active" onclick="showCategory('restaurants')">Restaurants</button>
+    <button class="map-tab" onclick="showCategory('grocery')">Grocery</button>
+    <button class="map-tab" onclick="showCategory('hardware')">Hardware</button>
+    <button class="map-tab" onclick="showCategory('vet')">Veterinarian</button>
+    <button class="map-tab" onclick="showCategory('medical')">Urgent Care</button>
+  </div>
+
+  <div id="cat-restaurants" class="places-list">
+    <a class="place-card" href="https://maps.google.com/?q=Auggie's+Cafe+%26+Deli,+Beverly+Hills+FL" target="_blank">
+      <div class="place-icon" style="background:#FFF3E0;">🥪</div>
+      <div style="flex:1;">
+        <div class="place-name">Auggie's Cafe & Deli</div>
+        <div class="place-addr">3158 W Pine Ridge Blvd · 5 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★★</span>
+          <span class="rating-count">4.8 (166 reviews)</span>
+        </div>
+        <div class="place-hours">Mon–Fri 7am–3pm · Sat–Sun 9am–2pm</div>
+      </div>
+    </a>
+    <a class="place-card" href="https://maps.google.com/?q=220+BBQ+Beverly+Hills+FL" target="_blank">
+      <div class="place-icon" style="background:#FBE9E7;">🔥</div>
+      <div style="flex:1;">
+        <div class="place-name">220 Barbecue</div>
+        <div class="place-addr">4493 N Lecanto Hwy · 8 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★½</span>
+          <span class="rating-count">4.5 (234 reviews)</span>
+        </div>
+        <div class="place-hours">Wed–Sun 11am–8pm</div>
+      </div>
+    </a>
+    <a class="place-card" href="https://maps.google.com/?q=Katch+Twenty-Two+Lecanto+FL" target="_blank">
+      <div class="place-icon" style="background:#E3F2FD;">🦞</div>
+      <div style="flex:1;">
+        <div class="place-name">Katch Twenty-Two</div>
+        <div class="place-addr">2924 W Gulf to Lake Hwy, Lecanto · 15 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★★</span>
+          <span class="rating-count">4.7 (566 reviews)</span>
+        </div>
+        <div class="place-hours">Daily 4pm–9pm · Upscale seafood &amp; steaks</div>
+      </div>
+    </a>
+  </div>
+
+  <div id="cat-grocery" class="places-list hidden">
+    <a class="place-card" href="https://maps.google.com/?q=Winn-Dixie+Beverly+Hills+FL" target="_blank">
+      <div class="place-icon" style="background:#E8F5E9;">🛒</div>
+      <div style="flex:1;">
+        <div class="place-name">Winn-Dixie</div>
+        <div class="place-addr">3565 N Lecanto Hwy · 5 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★</span>
+          <span class="rating-count">4.2 (2,117 reviews)</span>
+        </div>
+        <div class="place-hours">Daily 7am–10pm · Closest option</div>
+      </div>
+    </a>
+    <a class="place-card" href="https://maps.google.com/?q=Publix+Shoppes+of+Citrus+Hills+Hernando+FL" target="_blank">
+      <div class="place-icon" style="background:#E8F5E9;">🛒</div>
+      <div style="flex:1;">
+        <div class="place-name">Publix — Shoppes of Citrus Hills</div>
+        <div class="place-addr">2685 N Forest Ridge Blvd, Hernando · 12 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★½</span>
+          <span class="rating-count">4.5 (2,211 reviews)</span>
+        </div>
+        <div class="place-hours">Daily 7am–9pm · Full-service bakery & deli</div>
+      </div>
+    </a>
+  </div>
+
+  <div id="cat-hardware" class="places-list hidden">
+    <a class="place-card" href="https://maps.google.com/?q=Carter's+Ace+Hardware+Beverly+Hills+FL" target="_blank">
+      <div class="place-icon" style="background:#FFF8E1;">🔧</div>
+      <div style="flex:1;">
+        <div class="place-name">Carter's Ace Hardware</div>
+        <div class="place-addr">3621 N Lecanto Hwy · 5 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★½</span>
+          <span class="rating-count">4.5 (282 reviews)</span>
+        </div>
+        <div class="place-hours">Mon–Sat 7:30am–7pm · Garden center, locksmith, Stihl service</div>
+      </div>
+    </a>
+  </div>
+
+  <div id="cat-vet" class="places-list hidden">
+    <a class="place-card" href="https://maps.google.com/?q=Countryside+Animal+Clinic+Beverly+Hills+FL" target="_blank">
+      <div class="place-icon" style="background:#E8F5E9;">🐾</div>
+      <div style="flex:1;">
+        <div class="place-name">Countryside Animal Clinic</div>
+        <div class="place-addr">2349 W Coast Path · 4 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★½</span>
+          <span class="rating-count">4.6 (1,037 reviews)</span>
+        </div>
+        <div class="place-hours">Mon–Fri 7am–7pm · Sat 8am–5pm · Small & large animals</div>
+      </div>
+    </a>
+  </div>
+
+  <div id="cat-medical" class="places-list hidden">
+    <a class="place-card" href="https://maps.google.com/?q=Quick+Care+Med+Beverly+Hills+FL" target="_blank">
+      <div class="place-icon" style="background:#E3F2FD;">🏥</div>
+      <div style="flex:1;">
+        <div class="place-name">Quick Care Med</div>
+        <div class="place-addr">3925 N Lecanto Hwy · 6 min</div>
+        <div class="place-meta">
+          <span class="stars">★★★★</span>
+          <span class="rating-count">4.4 (1,536 reviews)</span>
+        </div>
+        <div class="place-hours">Mon–Fri 9am–7pm · Sat–Sun 9am–5pm</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="map-embed">
+    <div class="map-placeholder">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#C8963E" stroke-width="1.5">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+        <circle cx="12" cy="10" r="3"/>
+      </svg>
+      <p style="font-size:14px;font-weight:500;color:var(--charcoal);margin-bottom:4px;">6854 W Sentinel Post Path</p>
+      <p style="font-size:12px;color:var(--muted);">Beverly Hills, FL 34465</p>
+      <a class="map-cta" href="https://maps.google.com/?q=6854+W+Sentinel+Post+Path+Beverly+Hills+FL+34465" target="_blank">
+        Open in Google Maps →
+      </a>
+    </div>
+  </div>
+
+  <!-- UTILITY CONTACTS -->
+  <div class="section-title"><span class="icon-dot"></span> Good to know</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:3rem;">
+    <div style="background:var(--warm-white);border:0.5px solid var(--border);border-radius:12px;padding:1rem;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Electric</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Duke Energy or WREC</div>
+      <div style="font-size:12px;color:var(--blue);">800-700-8744 / 352-795-4382</div>
+    </div>
+    <div style="background:var(--warm-white);border:0.5px solid var(--border);border-radius:12px;padding:1rem;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Garbage</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Private hauler (no HOA)</div>
+      <div style="font-size:12px;color:var(--blue);">Waste Pro: 352-726-7440</div>
+    </div>
+    <div style="background:var(--warm-white);border:0.5px solid var(--border);border-radius:12px;padding:1rem;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Internet</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Spectrum or CenturyLink</div>
+      <div style="font-size:12px;color:var(--blue);">855-363-4906 / 877-887-7746</div>
+    </div>
+    <div style="background:var(--warm-white);border:0.5px solid var(--border);border-radius:12px;padding:1rem;">
+      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;">Water/Septic</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:2px;">Private well + septic</div>
+      <div style="font-size:12px;color:var(--muted);">A-Able Septic: 352-398-9348</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <div class="footer-brand">Florida's A Team Realty</div>
+  <div class="footer-sub">Thomas McLaren · 352-467-5011 · admin@floridasateamrealty.com</div>
+</div>
+
+<script>
+  function showCategory(cat) {
+    const cats = ['restaurants','grocery','hardware','vet','medical'];
+    cats.forEach(c => {
+      document.getElementById('cat-'+c).classList.toggle('hidden', c !== cat);
+    });
+    document.querySelectorAll('.map-tab').forEach((btn, i) => {
+      btn.classList.toggle('active', cats[i] === cat);
+    });
+  }
+</script>
+
+</body>
+</html>
